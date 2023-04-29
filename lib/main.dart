@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:techaway/components/CartItemsProvider.dart';
 import 'package:techaway/components/CurrentIndexProvider.dart';
 import 'package:techaway/components/Themeprovider.dart';
 import 'package:techaway/components/homePage/homeBody.dart';
@@ -13,7 +14,8 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => CurrentIndexProvider())
+        ChangeNotifierProvider(create: (_) => CurrentIndexProvider()),
+        ChangeNotifierProvider(create: (context)=>CartItemProvider())
       ],
       child: MyApp(),
     ),

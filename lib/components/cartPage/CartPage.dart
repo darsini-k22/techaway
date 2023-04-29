@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:techaway/components/CartItemsProvider.dart';
 import 'package:techaway/components/checkOutPage/CheckOutPage.dart';
 
 class MyCartPage extends StatefulWidget {
@@ -11,6 +13,7 @@ class MyCartPage extends StatefulWidget {
 class _MyCartPageState extends State<MyCartPage> {
   @override
   Widget build(BuildContext context) {
+    final cartItemProvider = Provider.of<CartItemProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -32,50 +35,41 @@ class _MyCartPageState extends State<MyCartPage> {
         padding: EdgeInsets.only(top: 10),
         child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: Column(children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text("Zone 1"),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              SizedBox(
+                height: 250,
+                child: Consumer<CartItemProvider>(
+                  builder: (context, foodModel, child) {
+                    return Consumer<CartItemProvider>(
+                    builder: (context, cartItemProvider, child) {
+                      return  ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: cartItemProvider.getFoodData().length,
+                          itemBuilder: (context, index) {
+                            final data = cartItemProvider.getFoodData()[index];
+
+                            if (cartItemProvider.getFoodData().length != null && data.added) {
+                              return CartCard(
+                                provider: cartItemProvider,
+                                path: "assets/images/sandwitch.png",
+                                itemName: data.foodName,
+                                itemPrice: data.price,
+                                added: true,
+                              );
+                            } else {
+                              return Center(
+                                child: Text('No Items'),
+                              );
+                            }
+                          });}
+                    );
+                  },
                 ),
               ),
-              CartCard(
-                path: "assets/images/sandwitch.png",
-                itemName: "sandwitch",
-                itemPrice: 20,
-              ),
+              SizedBox(height: 52),
               Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text("Zone 2"),
-                ),
-              ),
-              CartCard(
-                path: "assets/images/sandwitch.png",
-                itemName: "sandwitch",
-                itemPrice: 20,
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text("Zone 3"),
-                ),
-              ),
-              CartCard(
-                path: "assets/images/sandwitch.png",
-                itemName: "sandwitch",
-                itemPrice: 20,
-              ),
-              SizedBox(height: 28),
-              Divider(
-                thickness: 1,
-                color: Colors.black,
-              ),
-              SizedBox(height: 28),
-              Text("Order Summary"),
+                  alignment: Alignment.centerLeft,
+                  child: Text("Order Summary")),
               SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -155,37 +149,33 @@ class _MyCartPageState extends State<MyCartPage> {
 class CartCard extends StatefulWidget {
   final String path;
   final String itemName;
-  final double itemPrice;
+  final String itemPrice;
+  final CartItemProvider provider;
+  final bool added;
 
   const CartCard(
       {super.key,
       required this.path,
       required this.itemName,
-      required this.itemPrice});
+        required this.provider,
+      required this.itemPrice,required this.added});
 
   @override
   State<CartCard> createState() => _CartCardState();
 }
 
 class _CartCardState extends State<CartCard> {
-  late int _qty = 1;
-
-  void incrementQty() {
-    setState(() {
-      _qty++;
-    });
-  }
-
-  void decrementQty() {
-    setState(() {
-      _qty--;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    int? qty=widget.provider.getQty(widget.itemName);
+    if (qty != null) {
+      qty=qty;
+    } else {
+      qty=1;
+    }
     return Visibility(
-      visible: _qty > 0,
+      visible: qty > 0 && widget.added ,
       child: Padding(
         padding: const EdgeInsets.all(13.0),
         child: Container(
@@ -209,13 +199,13 @@ class _CartCardState extends State<CartCard> {
             Column(
               children: [
                 Text(
-                  "Sandwitch",
+                  widget.itemName,
                   style: TextStyle(color: Colors.red.shade700),
                 ),
                 SizedBox(
                   height: 18,
                 ),
-                Text('Rs ' + widget.itemPrice.toString(),
+                Text('Rs ' + widget.itemPrice ,
                     style: TextStyle(color: Colors.red.shade700))
               ],
             ),
@@ -234,7 +224,10 @@ class _CartCardState extends State<CartCard> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            decrementQty();
+                            widget.provider.decrementQty(widget.itemName);
+                            if(qty==0){
+                              widget.provider.setAdded(false, widget.itemName);
+                            }
                           },
                           child: Container(
                               decoration: BoxDecoration(
@@ -250,14 +243,15 @@ class _CartCardState extends State<CartCard> {
                               )),
                         ),
                         SizedBox(width: 10),
-                        Text(_qty.toString(),
+                        Text(qty.toString(),
                             style: TextStyle(color: Colors.red.shade700)),
                         SizedBox(width: 10),
                         GestureDetector(
                           onTap: () {
-                            if (_qty < 10) {
-                              incrementQty();
-                            }
+
+                              widget.provider.incrementQty(widget.itemName);
+                              widget.provider.setAdded(true, widget.itemName);
+
                           },
                           child: Container(
                               decoration: BoxDecoration(

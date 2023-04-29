@@ -6,9 +6,11 @@ class FoodDisplayContainer extends StatelessWidget {
   final String? foodName;
   final String? price;
   final String? stocksLeft;
+  final List<String> data;
 
   const FoodDisplayContainer({
     Key? key,
+    required this.data,
     required this.path,
     this.foodName,
     this.price,
@@ -20,7 +22,7 @@ class FoodDisplayContainer extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.0)),
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(5.0),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Row(
@@ -32,7 +34,7 @@ class FoodDisplayContainer extends StatelessWidget {
                           color: Colors.orangeAccent,
                           borderRadius: BorderRadius.circular(20.0)),
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(55, 25, 55, 25),
+                        padding: const EdgeInsets.fromLTRB(50, 25,50, 25),
                         child: Image.asset(path),
                       )),
                   Padding(
@@ -48,10 +50,10 @@ class FoodDisplayContainer extends StatelessWidget {
                     ]),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     child: Row(children: [
                       Align(
-                          alignment: Alignment.centerLeft, child: AddButton()),
+                          alignment: Alignment.centerLeft, child: AddButton(data: data,)),
                       SizedBox(width: 25),
                       Align(
                           alignment: Alignment.centerRight,

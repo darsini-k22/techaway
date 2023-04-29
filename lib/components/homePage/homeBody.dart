@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:ffi';
-
-import 'package:firebase_database/firebase_database.dart';
-import 'package:techaway/components/FoodData.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:techaway/components/homePage/foodDisplayContainer.dart';
-import 'package:techaway/components/homePage/searchBar.dart';
 
 class homeBody extends StatefulWidget {
   const homeBody({Key? key}) : super(key: key);
@@ -15,109 +10,94 @@ class homeBody extends StatefulWidget {
 }
 
 class _homeBodyState extends State<homeBody> {
-  final ref = FirebaseDatabase.instance.reference();
-  List<FoodData> foodData = [];
+  final CollectionReference ref = FirebaseFirestore.instance.collection('food');
 
-  void getData(){
-    ref.once().then((DataSnapshot snapshot) {
-      print('Data : ${snapshot.value}');
-    } as FutureOr Function(DatabaseEvent value));
-  }
-
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   DatabaseReference foodDataRef= FirebaseDatabase.instance.reference().child('food');
-  //   foodDataRef.once().then((DataSnapshot? snapshot) {
-  //     foodData.clear();
-  //     var keys = snapshot?.key;
-  //     var values = snapshot?.value;
-  //
-  //     if (keys != null && values != null) {
-  //       for (var key in keys) {
-  //         FoodData data = new FoodData(values[key]['foodName'], values[key]['stockLeft'], values[key]['price']);
-  //         foodData.add(data);
-  //       }
-  //
-  //     }
-  //
-  //   } as FutureOr Function(DatabaseEvent value));
-  // }
   @override
   Widget build(BuildContext context) {
-    final foodref = ref.child('food');
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      return Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(children: [
-              const SearchBar(),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Best Sellers")),
-              ),
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(children: [
-                    // FoodDisplayContainer(
-                    //   path: "assets/images/sandwitch.png",
-                    //   foodName: _foodName[0] ?? "",
-                    //   price: _price,
-                    //   stocksLeft: _stockLeft,
-                    // ),
-                  ])),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Try These Out")),
-              ),
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      ElevatedButton(
-                          onPressed: () {
-                            getData();
-                          },
-                          child: Text('click'))
-                      // FoodDisplayContainer(
-                      //   path: "assets/images/sandwitch.png",
-                      //   foodName: _foodName,
-                      //   price: _price,
-                      //   stocksLeft: _stockLeft,
-                      // ),
-                    ],
+    return StreamBuilder(
+      stream: ref.snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+        if (streamSnapshot.hasData) {
+          return Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  // const SearchBar(),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Best Sellers")),
                   ),
-                  Row(
-                    children: [
-                      // FoodDisplayContainer(
-                      //   path: "assets/images/sandwitch.png",
-                      //   foodName: _foodName,
-                      //   price: _price,
-                      //   stocksLeft: _stockLeft,
-                      // ),
-                    ],
+                  SizedBox(
+                    height: 250,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 2,
+                        itemBuilder: (context, index) {
+                          final DocumentSnapshot documentSnapshot =
+                              streamSnapshot.data!.docs[index];
+
+                          return FoodDisplayContainer(
+                            data: [
+                              documentSnapshot['foodName'],
+                              documentSnapshot['price'],
+                              documentSnapshot['stocksLeft']
+                            ],
+                            path: "assets/images/sandwitch.png",
+                            foodName: documentSnapshot['foodName'],
+                            price: documentSnapshot['price'],
+                            stocksLeft: documentSnapshot['stocksLeft'],
+                          );
+                        }),
                   ),
-                  // Row(
-                  //   children:[
-                  //     FoodDisplayContainer(
-                  //       path: "assets/images/sandwitch.png",
-                  //       foodName: _foodName,
-                  //       price: _price,
-                  //       stocksLeft: _stockLeft,
-                  //     ),
-                  //   ],
-                  // ),
-                ],
-              )
-            ]),
-          ));
-    });
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Try These Out")),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    fit: FlexFit.loose,
+                    child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 3 / 4,
+                        ),
+                        itemCount: streamSnapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          final DocumentSnapshot documentSnapshot =
+                              streamSnapshot.data!.docs[index];
+
+                          return FoodDisplayContainer(
+                            data: [
+                              documentSnapshot['foodName'],
+                              documentSnapshot['price'],
+                              documentSnapshot['stocksLeft']
+                            ],
+                            path: "assets/images/sandwitch.png",
+                            foodName: documentSnapshot['foodName'],
+                            price: documentSnapshot['price'],
+                            stocksLeft: documentSnapshot['stocksLeft'],
+                          );
+                        }),
+                  ),
+                ]),
+              ));
+        } else if (streamSnapshot.hasError) {
+          print(streamSnapshot.error.toString());
+        }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
   }
 }
