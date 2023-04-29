@@ -248,10 +248,7 @@ class _CartCardState extends State<CartCard> {
                         SizedBox(width: 10),
                         GestureDetector(
                           onTap: () {
-
                               widget.provider.incrementQty(widget.itemName);
-                              widget.provider.setAdded(true, widget.itemName);
-
                           },
                           child: Container(
                               decoration: BoxDecoration(

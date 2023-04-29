@@ -4,7 +4,7 @@ import 'package:techaway/components/CartItemsProvider.dart';
 import 'package:techaway/components/FoodData.dart';
 
 class AddButton extends StatefulWidget {
-  final List<String>? data;
+  final List<String> data;
 
   const AddButton({super.key, required this.data});
 
@@ -21,16 +21,14 @@ class _AddButtonState extends State<AddButton> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     final cartItemProvider = Provider.of<CartItemProvider>(context);
-
-    bool isAddedToCart = cartItemProvider.getAdded(widget.data![0]) ?? false;
-    bool isFoodInCart = cartItemProvider.getFoodData().any((data) =>
-    data.foodName == widget.data![0]);
-
-    if (!isAddedToCart || !isFoodInCart) {
-      flag = false;
+    if(cartItemProvider.getAdded(widget.data[0])==false && cartItemProvider.getAdded(widget.data[0])!=null){
+      setState(() {
+        flag=false;
+      });
     }
 
     return Align(
@@ -44,12 +42,11 @@ class _AddButtonState extends State<AddButton> {
               foodName: widget.data![0],
               price: widget.data![2],
               stockLeft: widget.data![1],
-              added: true,
             );
             if (flag) {
               cartItemProvider.setFoodData(foodData);
             } else {
-              cartItemProvider.removeItem(foodData);
+              cartItemProvider.removeItem(widget.data[0]);
             }
           },
           child: Container(
@@ -68,7 +65,7 @@ class _AddButtonState extends State<AddButton> {
                         borderRadius: BorderRadius.circular(50)
                     ),
                     child: Icon(
-                      flag ? Icons.check : Icons.remove,
+                      flag ? Icons.check : Icons.add,
                       color: Colors.green,
                     ),
                   ),
