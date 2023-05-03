@@ -43,7 +43,7 @@ class _homeBodyState extends State<homeBody> {
                       if (snapshot.hasData) {
                         return ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: foodDataProvider.filteredFoodData.length-10,
+                            itemCount: foodDataProvider.filteredFoodData.length,
                             itemBuilder: (context, index) {
                               return FoodDisplayContainerHorizontal(
                                 data: foodDataProvider.filteredFoodData[index],
@@ -80,11 +80,11 @@ class _homeBodyState extends State<homeBody> {
                               mainAxisSpacing: 10,
                               childAspectRatio: 0.66,
                             ),
-                            itemCount: foodDataProvider.filteredFoodData.length-5,
+                            itemCount: foodDataProvider.filteredFoodData.length,
                             itemBuilder: (context, index) {
                               return FoodDisplayContainer(
-                                data: foodDataProvider.filteredFoodData[index+5],
-                                path: "assets/images/${foodDataProvider.filteredFoodData[index+5].foodName}.png",
+                                data: foodDataProvider.filteredFoodData[index],
+                                path: "assets/images/${foodDataProvider.filteredFoodData[index].foodName}.png",
                               );
                             });
                       } else if (snapshot.hasError) {
