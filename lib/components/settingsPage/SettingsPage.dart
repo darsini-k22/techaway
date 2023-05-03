@@ -133,42 +133,42 @@ class _SettingsPageState extends State<SettingsPage> {
           SizedBox(
             height: 10,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-                onTap: () {},
-                child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Row(children: [
-                          Icon(
-                            Icons.notifications,
-                            color: Colors.redAccent,
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            "Notification",style:TextStyle(color:themeProvider.isDarkMode?Colors.black:Colors.black,fontSize: 20,fontWeight: FontWeight.w700)
-
-                          )
-                        ]),
-                      ),
-                    ))),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: GestureDetector(
+          //       onTap: () {},
+          //       child: Container(
+          //           decoration: BoxDecoration(
+          //             color: Colors.white,
+          //             borderRadius: BorderRadius.circular(20),
+          //             boxShadow: [
+          //               BoxShadow(
+          //                 color: Colors.grey.withOpacity(0.5),
+          //                 spreadRadius: 2,
+          //                 blurRadius: 5,
+          //                 offset: Offset(0, 3),
+          //               ),
+          //             ],
+          //           ),
+          //           child: Container(
+          //             child: Padding(
+          //               padding: const EdgeInsets.all(20.0),
+          //               child: Row(children: [
+          //                 Icon(
+          //                   Icons.notifications,
+          //                   color: Colors.redAccent,
+          //                 ),
+          //                 SizedBox(
+          //                   width: 20,
+          //                 ),
+          //                 Text(
+          //                   "Notification",style:TextStyle(color:themeProvider.isDarkMode?Colors.black:Colors.black,fontSize: 20,fontWeight: FontWeight.w700)
+          //
+          //                 )
+          //               ]),
+          //             ),
+          //           ))),
+          // ),
           SizedBox(
             height: 10,
           ),
