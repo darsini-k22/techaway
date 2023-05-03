@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:techaway/components/Themeprovider.dart';
+import 'package:techaway/components/Providers/CurrentIndexProvider.dart';
+import 'package:techaway/components/Providers/Themeprovider.dart';
+import 'package:techaway/components/userCredentials/UserLogin.dart';
+import 'package:techaway/components/settingsPage/ProfilePage.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -32,6 +36,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndexProvider= Provider.of<CurrentIndexProvider>(context);
+    final themeProvider=Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -54,10 +60,11 @@ class _SettingsPageState extends State<SettingsPage> {
               child: GestureDetector(
                   onTap: () {
                     themeProvider.toggleTheme();
+                    toggle();
                   },
                   child: Container(
                       decoration: BoxDecoration(
-                        color:  Colors.white,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
@@ -77,8 +84,8 @@ class _SettingsPageState extends State<SettingsPage> {
                               width: 20,
                             ),
                             Text(
-                              n,
-                              style: TextStyle(color: Colors.redAccent),
+                              n,style:TextStyle(fontSize: 20,fontWeight: FontWeight.w700,color:themeProvider.isDarkMode?Colors.black:Colors.black)
+
                             )
                           ]),
                         ),
@@ -94,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () {},
                 child: Container(
                     decoration: BoxDecoration(
-                      color:Colors.white,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -117,10 +124,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             width: 20,
                           ),
                           Text(
-                            "Share this app",
-                            style: TextStyle(color: Colors.redAccent),
-                          )
-                        ]),
+                            "Share this app",style:TextStyle(fontSize: 20,fontWeight: FontWeight.w700,color:themeProvider.isDarkMode?Colors.black:Colors.black))
+
+                              ]),
                       ),
                     ))),
           ),
@@ -133,7 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () {},
                 child: Container(
                     decoration: BoxDecoration(
-                      color:Colors.white,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -156,8 +162,98 @@ class _SettingsPageState extends State<SettingsPage> {
                             width: 20,
                           ),
                           Text(
-                            "Notification",
-                            style: TextStyle(color: Colors.redAccent),
+                            "Notification",style:TextStyle(color:themeProvider.isDarkMode?Colors.black:Colors.black,fontSize: 20,fontWeight: FontWeight.w700)
+
+                          )
+                        ]),
+                      ),
+                    ))),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
+                  ),);
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(children: [
+                          Icon(
+                            Icons.person_2_rounded,
+                            color: Colors.redAccent,
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                              "Profile",style:TextStyle(color:themeProvider.isDarkMode?Colors.black:Colors.black,fontSize: 20,fontWeight: FontWeight.w700)
+
+                          )
+                        ]),
+                      ),
+                    ))),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+                onTap: () {
+                  FirebaseAuth.instance
+                      .signOut()
+                      .then((value) {
+                        currentIndexProvider.currentIndex=0;  return Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => LoginPage()));})
+                      .onError((error, stackTrace) =>
+                          print('Error during signout: ${error.toString()}'));
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(children: [
+                          Icon(
+                            Icons.logout,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            "Log Out",style:TextStyle(fontSize: 20,fontWeight: FontWeight.w700,color:Colors.white)
+
                           )
                         ]),
                       ),

@@ -39,10 +39,30 @@ dependencies:
   firebase_database: ^10.1.1
   firebase_core: ^2.10.0
   cloud_firestore: ^4.5.3
+  google_sign_in: ^6.1.0
+  firebase_auth: ^4.4.2
+  flutter_native_splash: ^2.2.19
+
+flutter_native_splash:
+  android: true
+  ios: false
+  web: false
+
+  background_image: "assets/images/background.png"
+  image: "assets/images/t.png"
+
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
+
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/hot-pot.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -58,6 +78,16 @@ dev_dependencies:
 flutter:
   assets:
     - assets/images/
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Italic-VariableFont_wght.ttf
+          style: italic
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-VariableFont_wght.ttf
+          style: normal
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

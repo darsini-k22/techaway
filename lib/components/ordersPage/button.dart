@@ -24,7 +24,7 @@ class Button extends StatelessWidget {
             color: color, borderRadius: BorderRadius.circular(30)),
         child: Padding(
           padding: EdgeInsets.all(15.0),
-          child: Text(text),
+          child: Text(text,style:TextStyle(color: Colors.white,fontFamily: 'Nunito',fontSize: 13,fontWeight: FontWeight.w800)),
         ),
       ),
     );

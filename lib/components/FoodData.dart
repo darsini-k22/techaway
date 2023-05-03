@@ -1,43 +1,30 @@
+
 class FoodData {
+  String _id;
   String _foodName;
-  String _stockLeft;
-  String _price;
-  int qty;
-  bool added;
+  num _stockLeft;
+  num _price;
 
   FoodData({
+    required String id,
     required String foodName,
-    required String price,
-    required String stockLeft,
-    this.qty = 1,
-    this.added = false,
-  })  : _foodName = foodName,
+    required num price,
+    required num stockLeft,
+  })  : _id=id,_foodName = foodName,
         _price = price,
         _stockLeft = stockLeft;
+
+  String get id=>_id;
+  set id(String id)=>_id=id;
 
   String get foodName => _foodName;
   set foodName(String value) => _foodName = value;
 
-  String get stockLeft => _stockLeft;
-  set stockLeft(String value) => _stockLeft = value;
+  num get stockLeft => _stockLeft;
+  set stockLeft(num value) => _stockLeft = value;
 
-  String get price => _price;
-  set price(String value) => _price = value;
+  num get price => _price;
+  set price(num value) => _price = value;
 
-  bool get getAdded=>added;
-  set setAdded(bool value)=>added=value;
 
-  int get getQty=>qty;
-
-  void incrementQty() {
-    if (qty != null) {
-      qty = qty + 1;
-    }
-  }
-
-  void decrementQty() {
-    if (qty != null && qty > 0) {
-      qty = qty - 1;
-    }
-  }
 }

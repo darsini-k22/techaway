@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:techaway/components/CartItemsProvider.dart';
+import 'package:techaway/components/Providers/CartItemsProvider.dart';
+import 'package:techaway/components/Providers/OrderDataProvider.dart';
+import 'package:techaway/components/cartPage/CartData.dart';
 import 'package:techaway/components/checkOutPage/CheckOutPage.dart';
 
 class MyCartPage extends StatefulWidget {
@@ -14,6 +16,8 @@ class _MyCartPageState extends State<MyCartPage> {
   @override
   Widget build(BuildContext context) {
     final cartItemProvider = Provider.of<CartItemProvider>(context);
+    final orderDataProvider = Provider.of<OrderDataProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -26,6 +30,16 @@ class _MyCartPageState extends State<MyCartPage> {
               ),
               'My Cart',
             ),
+            SizedBox(width: 10,),
+            Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.green),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal:8.0,vertical:6.0),
+                  child: Text(cartItemProvider.cartData.length.toString(),
+                      style: TextStyle(color: Colors.white,fontSize:17,fontWeight: FontWeight.w900)),
+                ))
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -36,51 +50,111 @@ class _MyCartPageState extends State<MyCartPage> {
         child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              SizedBox(
-                height: 250,
-                child: Consumer<CartItemProvider>(
-                  builder: (context, foodModel, child) {
-                    return Consumer<CartItemProvider>(
-                    builder: (context, cartItemProvider, child) {
-                      return  ListView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: cartItemProvider.getFoodData().length,
-                          itemBuilder: (context, index) {
-                            final data = cartItemProvider.getFoodData()[index];
-
-                            if (cartItemProvider.getFoodData().length != null && data.added) {
-                              return CartCard(
-                                provider: cartItemProvider,
-                                path: "assets/images/sandwitch.png",
-                                itemName: data.foodName,
-                                itemPrice: data.price,
-                                added: true,
-                              );
-                            } else {
-                              return Center(
-                                child: Text('No Items'),
-                              );
-                            }
-                          });}
-                    );
-                  },
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                        onTap: () {
+                          cartItemProvider.removeAll();
+                        },
+                        child: Icon(Icons.cancel))),
+              ),
+              Visibility(
+                visible: cartItemProvider.cartData.isNotEmpty,
+                child: SizedBox(
+                  height: 300,
+                  child: Consumer<CartItemProvider>(
+                    builder: (context, foodModel, child) {
+                      return Consumer<CartItemProvider>(
+                          builder: (context, cartItemProvider, child) {
+                        return ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            itemCount: cartItemProvider.cartData.length,
+                            itemBuilder: (context, index) {
+                              final data = cartItemProvider.cartData[index];
+                              if (cartItemProvider.cartData.length != 0) {
+                                return CartCard(
+                                  data: data,
+                                  path:
+                                      "assets/images/${data.foodData.foodName}.png",
+                                );
+                              } else {
+                                return Center(
+                                  child: Text('No Items'),
+                                );
+                              }
+                            });
+                      });
+                    },
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: cartItemProvider.cartData.isEmpty,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+                  child: Center(
+                      child: Text(
+                          'No Food In Yout Cart 😕. Add Something To Fill Your Tummy With Yummy 😋 Foods ❗❗',
+                          overflow: TextOverflow.visible,
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w700))),
                 ),
               ),
               SizedBox(height: 52),
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Order Summary")),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text("Order Summary",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900))),
+              ),
               SizedBox(height: 25),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Zone 1 item total"),
-                    SizedBox(),
-                    Text("Rs. 20")
-                  ],
-                ),
+              Flexible(
+                fit: FlexFit.loose,
+                flex: 1,
+                child: Consumer<CartItemProvider>(
+                    builder: (context, provider, child) {
+                  final data = provider.cartData;
+                  if (data.isNotEmpty) {
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final cartData = data[index];
+                          //calculateGrandTotal(cartData.foodData.price*cartData.qty);
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                    cartData.foodData.foodName +
+                                        ' x ' +
+                                        cartData.qty.toString(),
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700)),
+                                Text(
+                                    'Rs. ${cartData.qty * cartData.foodData.price}'
+                                        .toString(),
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w800))
+                              ],
+                            ),
+                          );
+                        });
+                  }
+
+                  return Text('No Item',
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.w700));
+                }),
               ),
               SizedBox(height: 20),
               Padding(
@@ -88,55 +162,65 @@ class _MyCartPageState extends State<MyCartPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Zone 2 item total"),
+                    Text("Grand total",
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700)),
                     SizedBox(),
-                    Text("Rs. 20")
+                    Text("Rs. ${cartItemProvider.grandTotal}",
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700))
                   ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Zone 3 item total"),
-                    SizedBox(),
-                    Text("Rs. 20")
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("Grand total"), SizedBox(), Text("Rs. 60")],
                 ),
               ),
               SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CheckOutPage(),
-                    ),
-                  );
+                  if (cartItemProvider.cartData.length != 0 &&
+                      orderDataProvider.orderData.data.isEmpty) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CheckOutPage(),
+                      ),
+                    );
+                  }
+                  return null;
                 },
                 child: Container(
                   width: 350,
                   decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: cartItemProvider.cartData.isNotEmpty &&
+                              orderDataProvider.orderData.data.isEmpty
+                          ? Colors.green
+                          : Colors.grey,
                       borderRadius: BorderRadius.circular(30)),
                   child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: Center(
                       child: Text(
                         'Check Out',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: orderDataProvider.orderData.data.isNotEmpty,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'An Order is been already placed❗ Try after the previous order is done',
+                    style: TextStyle(color: Colors.red,fontWeight: FontWeight.w800),
+                    overflow: TextOverflow.visible,
                   ),
                 ),
               )
@@ -147,127 +231,122 @@ class _MyCartPageState extends State<MyCartPage> {
 }
 
 class CartCard extends StatefulWidget {
+  final CartData data;
   final String path;
-  final String itemName;
-  final String itemPrice;
-  final CartItemProvider provider;
-  final bool added;
 
-  const CartCard(
-      {super.key,
-      required this.path,
-      required this.itemName,
-        required this.provider,
-      required this.itemPrice,required this.added});
+  const CartCard({
+    super.key,
+    required this.data,
+    required this.path,
+  });
 
   @override
   State<CartCard> createState() => _CartCardState();
 }
 
 class _CartCardState extends State<CartCard> {
-
   @override
   Widget build(BuildContext context) {
-    int? qty=widget.provider.getQty(widget.itemName);
-    if (qty != null) {
-      qty=qty;
-    } else {
-      qty=1;
-    }
-    return Visibility(
-      visible: qty > 0 && widget.added ,
+    final cartItemProvider = Provider.of<CartItemProvider>(context);
+    return Card(
       child: Padding(
-        padding: const EdgeInsets.all(13.0),
-        child: Container(
-          decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(20)),
-          child: Row(children: [
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
             Container(
               decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(20)),
+                borderRadius: BorderRadius.circular(8.0),
+                color: Colors.green,
+              ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-                child: Image.asset(widget.path),
+                padding: const EdgeInsets.all(10.0),
+                child: Image.asset(
+                  widget.path,
+                  fit: BoxFit.cover,
+                  width: 60.0,
+                  height: 60.0,
+                ),
               ),
             ),
-            SizedBox(
-              width: 15,
-            ),
-            Column(
-              children: [
-                Text(
-                  widget.itemName,
-                  style: TextStyle(color: Colors.red.shade700),
-                ),
-                SizedBox(
-                  height: 18,
-                ),
-                Text('Rs ' + widget.itemPrice ,
-                    style: TextStyle(color: Colors.red.shade700))
-              ],
-            ),
-            SizedBox(
-              width: 15,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 70),
+            SizedBox(width: 8.0),
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: 20,
+                  Text(
+                    '${widget.data.foodData.foodName[0].toUpperCase()}${widget.data.foodData.foodName.substring(1).toLowerCase()}',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                  SizedBox(height: 8.0),
+                  Text('Price: ${widget.data.foodData.price}',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          fontFamily: 'Nunito',
+                          color: Colors.grey.shade600)),
+                  SizedBox(height: 8.0),
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            widget.provider.decrementQty(widget.itemName);
-                            if(qty==0){
-                              widget.provider.setAdded(false, widget.itemName);
-                            }
-                          },
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.brown,
-                                  borderRadius: BorderRadius.circular(50)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Icon(
-                                  Icons.remove,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              )),
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          cartItemProvider.decrement(widget.data.foodData);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.green[300],
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 4.0),
+                            child: Icon(
+                              Icons.remove,
+                              size: 20.0,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                        SizedBox(width: 10),
-                        Text(qty.toString(),
-                            style: TextStyle(color: Colors.red.shade700)),
-                        SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {
-                              widget.provider.incrementQty(widget.itemName);
-                          },
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.brown,
-                                  borderRadius: BorderRadius.circular(50)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              )),
+                      ),
+                      SizedBox(width: 8.0),
+                      Text(
+                        widget.data.qty.toString(),
+                        style: TextStyle(
+                            fontSize: 16.0, fontWeight: FontWeight.w800),
+                      ),
+                      SizedBox(width: 8.0),
+                      GestureDetector(
+                        onTap: () {
+                          cartItemProvider.increment(widget.data.foodData);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.green[300],
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 4.0),
+                            child: Icon(Icons.add,
+                                size: 20.0, color: Colors.white),
+                          ),
                         ),
-                      ])
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            )
-          ]),
+            ),
+            SizedBox(width: 8.0),
+            GestureDetector(
+              onTap: () {
+                cartItemProvider.removeById(widget.data.foodData.id);
+              },
+              child: Icon(Icons.close, size: 24.0, color: Colors.grey),
+            ),
+          ],
         ),
       ),
     );
