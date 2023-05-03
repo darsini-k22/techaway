@@ -198,7 +198,7 @@ class _MyOrdersState extends State<MyOrders> {
                                                   MaterialStateProperty.all<
                                                       Color>(Colors.green)),
                                           child: Text(
-                                            'Yes',
+                                            'Confirm',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 20,

@@ -46,8 +46,8 @@ class _homeBodyState extends State<homeBody> {
                             itemCount: foodDataProvider.filteredFoodData.length,
                             itemBuilder: (context, index) {
                               return FoodDisplayContainerHorizontal(
-                                data: foodDataProvider.filteredFoodData[index],
-                                path: "assets/images/${foodDataProvider.filteredFoodData[index].foodName}.png",
+                                data: foodDataProvider.filteredFoodData[index+5],
+                                path: "assets/images/${foodDataProvider.filteredFoodData[index+5].foodName}.png",
                               );
                             });
                       } else if (snapshot.hasError) {

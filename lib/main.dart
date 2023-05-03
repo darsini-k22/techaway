@@ -219,7 +219,7 @@ class HomePage extends StatelessWidget {
                       padding: const EdgeInsets.only(left:18,top: 38),
                       child: Container(
                         child: Text(
-                          "Put Somthing Yummy In You Tummy 😋",
+                          "Put Somthing Yummy In Your Tummy 😋",
                           overflow: TextOverflow.visible,
                           maxLines: 3,
                           style: TextStyle(
