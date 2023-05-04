@@ -5,6 +5,7 @@ import 'package:techaway/components/userCredentials/UserData.dart';
 
 class UserDataProvider with ChangeNotifier {
   UserData _currentUserData = UserData(userId: "", userName: "", userEmail: "");
+  String userName='';
 
   Future<bool> isFavorite(String foodId) async {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -18,21 +19,21 @@ class UserDataProvider with ChangeNotifier {
     return snapshot.docs.isNotEmpty;
   }
 
-  Future<void> getUserName() async {
-    try {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .get();
-      if (snapshot.exists) {
-
-        _currentUserData.userName= snapshot.get('userName');
-      }
-    } catch (e) {
-      print(e);
-
-    }
-  }
+  // Future<void> getUserName() async {
+  //   try {
+  //     DocumentSnapshot snapshot = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(FirebaseAuth.instance.currentUser!.uid)
+  //         .get();
+  //     if (snapshot.exists) {
+  //
+  //       _currentUserData.userName= snapshot.get('userName');
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //
+  //   }
+  // }
 
 
 
@@ -55,6 +56,21 @@ class UserDataProvider with ChangeNotifier {
     notifyListeners();
   }
 
+
+  Future<String> getUsername() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      return '';
+    }
+    final userSnapshot =
+    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    if (!userSnapshot.exists) {
+      return '';
+    }
+    final userData = userSnapshot.data();
+    userName=userData!['userName'] as String;
+    return userData!['userName'] as String;
+  }
 
 
   UserData get currentUserData => _currentUserData;
