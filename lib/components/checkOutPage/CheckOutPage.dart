@@ -234,7 +234,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                   child: GestureDetector(
                     onTap: () {
                       if (payed == true) {
-                        currentIndexProvider.setCurrentIndex(0);
+                        currentIndexProvider.setCurrentIndex(1);
                         orderDataProvider.write(
                             cartItemProvider.cartData,FirebaseAuth.instance.currentUser!.uid);
                         orderDataProvider
@@ -258,7 +258,38 @@ class _CheckOutPageState extends State<CheckOutPage> {
                         padding: EdgeInsets.all(15.0),
                         child: Center(
                           child: Text(
-                            'Confirm Payment',
+                            'Go To Order Page',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      if(payed!=true) {
+                        payed = false;
+                        Navigator.pop(context);
+                      }
+                      return null;
+                    },
+                    child: Container(
+                      width: 350,
+                      decoration: BoxDecoration(
+                          color:  payed?Colors.grey:Colors.red,
+                          borderRadius: BorderRadius.circular(25)),
+                      child: Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Center(
+                          child: Text(
+                            'Cancel Payment',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

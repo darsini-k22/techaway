@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:techaway/components/FoodData.dart';
 import 'package:techaway/components/cartPage/CartData.dart';
@@ -60,6 +61,20 @@ class CartItemProvider with ChangeNotifier {
       cartdata.decrement();
       notifyListeners();
     }
-
   }
+
+  bool isAnyNoStock() {
+    if (cartData.isEmpty) {
+      return false;
+    } else {
+      final bool noStock = cartData.any((element) => element.foodData.stockLeft==0);
+      return noStock;
+    }
+    notifyListeners();
+  }
+
+
+
+
+
 }

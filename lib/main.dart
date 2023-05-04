@@ -165,6 +165,14 @@ class _BottomNavigatorState extends State<BottomNavigator> {
           ),
           label: 'My Cart',
         ),
+
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.favorite,
+            color: Colors.green,
+          ),
+          label: 'Favorites',
+        ),
         BottomNavigationBarItem(
           icon: Icon(
             Icons.settings,

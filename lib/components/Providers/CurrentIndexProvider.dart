@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:techaway/components/FavoritesPage.dart';
 import 'package:techaway/components/cartPage/CartPage.dart';
 import 'package:techaway/components/ordersPage/OrdersPage.dart';
 import 'package:techaway/main.dart';
@@ -11,6 +12,7 @@ class CurrentIndexProvider with ChangeNotifier {
     HomePage(),
     MyOrders(),
     MyCartPage(),
+    FavoritesPage(),
     SettingsPage()
   ];
 

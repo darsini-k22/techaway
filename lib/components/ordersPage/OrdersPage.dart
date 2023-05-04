@@ -35,7 +35,7 @@ class _MyOrdersState extends State<MyOrders> {
   void initState() {
     super.initState();
     final orderDataProvider =
-        Provider.of<OrderDataProvider>(context, listen: false);
+    Provider.of<OrderDataProvider>(context, listen: false);
     if (orderDataProvider.orderData.data.isNotEmpty) {
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         setState(() {
@@ -191,12 +191,12 @@ class _MyOrdersState extends State<MyOrders> {
                                         // Create a button widget to close the dialog box
                                         TextButton(
                                           style: ButtonStyle(shape:MaterialStateProperty.all<RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25.0),
-                                    ),),
+                                            RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(25.0),
+                                            ),),
                                               backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                      Color>(Colors.green)),
+                                              MaterialStateProperty.all<
+                                                  Color>(Colors.green)),
                                           child: Text(
                                             'Confirm',
                                             style: TextStyle(
@@ -214,6 +214,25 @@ class _MyOrdersState extends State<MyOrders> {
                                                   orderDataProvider.orderData);
                                               // set no order text visible
                                             }
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          style: ButtonStyle(shape:MaterialStateProperty.all<RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(25.0),
+                                            ),),
+                                              backgroundColor:
+                                              MaterialStateProperty.all<
+                                                  Color>(Colors.red)),
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w800),
+                                          ),
+                                          onPressed: () {
                                             Navigator.of(context).pop();
                                           },
                                         ),

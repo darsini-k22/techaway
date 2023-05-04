@@ -17,14 +17,21 @@ class UserDataProvider with ChangeNotifier {
 
     return snapshot.docs.isNotEmpty;
   }
-  Future<String> getUsername() async {
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    _currentUserData.userName=doc.get('username');
-    return doc.get('username');
 
+  Future<void> getUserName() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      if (snapshot.exists) {
+
+        _currentUserData.userName= snapshot.get('userName');
+      }
+    } catch (e) {
+      print(e);
+
+    }
   }
 
 
@@ -48,20 +55,7 @@ class UserDataProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> login(String userEmail) async {
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('userEmail', isEqualTo: userEmail)
-          .get();
-      if (querySnapshot.docs.isNotEmpty) {
-        _currentUserData.userName = querySnapshot.docs.first.data()['userName'];
-      }
-      notifyListeners();
-    } catch (e) {
-      print(e.toString());
-    }
-  }
+
 
   UserData get currentUserData => _currentUserData;
 }

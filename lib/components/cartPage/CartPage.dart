@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:techaway/components/Providers/CartItemsProvider.dart';
+import 'package:techaway/components/Providers/FoodIDataProvider.dart';
 import 'package:techaway/components/Providers/OrderDataProvider.dart';
 import 'package:techaway/components/cartPage/CartData.dart';
 import 'package:techaway/components/checkOutPage/CheckOutPage.dart';
@@ -13,10 +14,19 @@ class MyCartPage extends StatefulWidget {
 }
 
 class _MyCartPageState extends State<MyCartPage> {
+  bool flag = false;
+
+  void toggleFlag(bool value) {
+    setState(() {
+      flag = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartItemProvider = Provider.of<CartItemProvider>(context);
     final orderDataProvider = Provider.of<OrderDataProvider>(context);
+    final foodDataProvider = Provider.of<FoodDataProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,15 +40,20 @@ class _MyCartPageState extends State<MyCartPage> {
               ),
               'My Cart',
             ),
-            SizedBox(width: 10,),
+            SizedBox(
+              width: 10,
+            ),
             Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
                     color: Colors.green),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal:8.0,vertical:6.0),
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
                   child: Text(cartItemProvider.cartData.length.toString(),
-                      style: TextStyle(color: Colors.white,fontSize:17,fontWeight: FontWeight.w900)),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900)),
                 ))
           ],
         ),
@@ -65,29 +80,33 @@ class _MyCartPageState extends State<MyCartPage> {
                 child: SizedBox(
                   height: 300,
                   child: Consumer<CartItemProvider>(
-                    builder: (context, foodModel, child) {
-                      return Consumer<CartItemProvider>(
-                          builder: (context, cartItemProvider, child) {
-                        return ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            itemCount: cartItemProvider.cartData.length,
-                            itemBuilder: (context, index) {
-                              final data = cartItemProvider.cartData[index];
-                              if (cartItemProvider.cartData.length != 0) {
-                                return CartCard(
-                                  data: data,
-                                  path:
-                                      "assets/images/${data.foodData.foodName}.png",
-                                );
-                              } else {
-                                return Center(
-                                  child: Text('No Items'),
-                                );
-                              }
-                            });
-                      });
-                    },
-                  ),
+                      builder: (context, cartItemProvider, child) {
+                    return StreamBuilder<Object>(
+                        stream: foodDataProvider.foodStream(),
+                        builder: (context, snapshot) {
+                          return ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              itemCount: cartItemProvider.cartData.length,
+                              itemBuilder: (context, index) {
+                                final data = cartItemProvider.cartData[index];
+                                if (data.foodData.stockLeft == 0) {
+                                  toggleFlag(true);
+                                }
+                                if (cartItemProvider.cartData.length != 0) {
+                                  return CartCard(
+                                    flag: flag,
+                                    data: data,
+                                    path:
+                                        "assets/images/${data.foodData.foodName}.png",
+                                  );
+                                } else {
+                                  return Center(
+                                    child: Text('No Items'),
+                                  );
+                                }
+                              });
+                        });
+                  }),
                 ),
               ),
               Visibility(
@@ -97,7 +116,7 @@ class _MyCartPageState extends State<MyCartPage> {
                       const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
                   child: Center(
                       child: Text(
-                          'No Food In Yout Cart 😕. Add Something To Fill Your Tummy With Yummy 😋 Foods ❗❗',
+                          'No Food In Your Cart 😕. Add Something To Fill Your Tummy With Yummy 😋 Foods ❗❗',
                           overflow: TextOverflow.visible,
                           style: TextStyle(
                               fontSize: 17, fontWeight: FontWeight.w700))),
@@ -177,53 +196,77 @@ class _MyCartPageState extends State<MyCartPage> {
                 ),
               ),
               SizedBox(height: 20),
-              GestureDetector(
-                onTap: () {
-                  if (cartItemProvider.cartData.length != 0 &&
-                      orderDataProvider.orderData.data.isEmpty) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CheckOutPage(),
-                      ),
-                    );
-                  }
-                  return null;
-                },
-                child: Container(
-                  width: 350,
-                  decoration: BoxDecoration(
-                      color: cartItemProvider.cartData.isNotEmpty &&
-                              orderDataProvider.orderData.data.isEmpty
-                          ? Colors.green
-                          : Colors.grey,
-                      borderRadius: BorderRadius.circular(30)),
-                  child: Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Center(
-                      child: Text(
-                        'Check Out',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+              Consumer<CartItemProvider>(
+                  builder: (context, cartItemProvider, child) {
+                return StreamBuilder<Object>(
+                    stream: foodDataProvider.foodStream(),
+                    builder: (context, snapshot) {
+                      return GestureDetector(
+                        onTap: () {
+                          if (cartItemProvider.cartData.length != 0 &&
+                              orderDataProvider.orderData.data.isEmpty &&
+                              !cartItemProvider.isAnyNoStock()
+                              ) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CheckOutPage(),
+                              ),
+                            );
+                          }
+                          return null;
+                        },
+                        child: Container(
+                          width: 350,
+                          decoration: BoxDecoration(
+                              color: cartItemProvider.cartData.isNotEmpty &&
+                                      orderDataProvider
+                                          .orderData.data.isEmpty &&
+                                      !cartItemProvider.isAnyNoStock()
+                                  ? Colors.green
+                                  : Colors.grey,
+                              borderRadius: BorderRadius.circular(30)),
+                          child: Padding(
+                            padding: EdgeInsets.all(15.0),
+                            child: Center(
+                              child: Text(
+                                'Check Out',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+                      );
+                    });
+              }),
               Visibility(
                 visible: orderDataProvider.orderData.data.isNotEmpty,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
                     'An Order is been already placed❗ Try after the previous order is done',
-                    style: TextStyle(color: Colors.red,fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.w800),
                     overflow: TextOverflow.visible,
                   ),
                 ),
-              )
+              ),
+              Visibility(
+                visible: flag,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    '0 stock items are there in you cart! Kindly cancel it out and add available items only!',
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.w800),
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+              ),
             ])),
       ),
     );
@@ -233,18 +276,18 @@ class _MyCartPageState extends State<MyCartPage> {
 class CartCard extends StatefulWidget {
   final CartData data;
   final String path;
+  final bool flag;
 
-  const CartCard({
-    super.key,
-    required this.data,
-    required this.path,
-  });
+  const CartCard(
+      {super.key, required this.data, required this.path, required this.flag});
 
   @override
   State<CartCard> createState() => _CartCardState();
 }
 
 class _CartCardState extends State<CartCard> {
+  bool flag = false;
+
   @override
   Widget build(BuildContext context) {
     final cartItemProvider = Provider.of<CartItemProvider>(context);
@@ -256,7 +299,7 @@ class _CartCardState extends State<CartCard> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                color: Colors.green,
+                color: flag ? Colors.grey : Colors.green,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -292,7 +335,11 @@ class _CartCardState extends State<CartCard> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          cartItemProvider.decrement(widget.data.foodData);
+                          if (!flag) {
+                            cartItemProvider.decrement(widget.data.foodData);
+                            flag = false;
+                          }
+                          return null;
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -319,11 +366,25 @@ class _CartCardState extends State<CartCard> {
                       SizedBox(width: 8.0),
                       GestureDetector(
                         onTap: () {
-                          cartItemProvider.increment(widget.data.foodData);
+                          if (widget.data.foodData.stockLeft >
+                                  widget.data.qty &&
+                              !flag) {
+                            cartItemProvider.increment(widget.data.foodData);
+                          } else {
+                            setState(() {
+                              flag = true;
+                            });
+                          }
+
+                          return null;
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.green[300],
+                            color: widget.data.foodData.stockLeft >
+                                        widget.data.qty &&
+                                    widget.data.foodData.stockLeft != 0
+                                ? Colors.green[300]
+                                : Colors.grey,
                             borderRadius: BorderRadius.circular(50),
                           ),
                           child: Padding(
@@ -336,6 +397,16 @@ class _CartCardState extends State<CartCard> {
                       ),
                     ],
                   ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2.0),
+                    child: Visibility(
+                        visible: flag,
+                        child: Text(
+                          'No stock left!',
+                          style: TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.w600),
+                        )),
+                  )
                 ],
               ),
             ),

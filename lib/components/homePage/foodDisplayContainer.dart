@@ -19,6 +19,7 @@ class FoodDisplayContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final foodDataProvider = Provider.of<FoodDataProvider>(context);
     return Card(
       elevation: 4,
@@ -86,7 +87,7 @@ class FoodDisplayContainer extends StatelessWidget {
             SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [AddButton(data: data), FavoriteButton(data: data,)],
+              children: [AddButton(data: data), FavoriteButton(foodId: data.id,)],
             ),
             Visibility(
                 visible: foodDataProvider.getById(data.id).stockLeft == 0,
@@ -193,7 +194,7 @@ class FoodDisplayContainerHorizontal extends StatelessWidget {
               SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [AddButton(data: data), FavoriteButton(data: data,)],
+                children: [AddButton(data: data), FavoriteButton(foodId:data.id)],
               ),
               Visibility(
                   visible: foodDataProvider.getById(data.id).stockLeft == 0,
@@ -218,139 +219,92 @@ class FoodDisplayContainerHorizontal extends StatelessWidget {
   }
 }
 
-class FavoriteButton extends StatefulWidget {
-  final FoodData data;
 
-  const FavoriteButton({Key? key,required this.data}) : super(key: key);
+
+class FavoriteButton extends StatefulWidget {
+  final String foodId;
+
+
+  FavoriteButton({
+    required this.foodId,
+  });
 
   @override
   _FavoriteButtonState createState() => _FavoriteButtonState();
 }
 
-
-// class _FavoriteButtonState extends State<FavoriteButton> {
-//   late bool _isFavorite;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _isFavorite = Provider.of<UserDataProvider>(context, listen: false)
-//         .isFavorite(widget.data.id) as bool;
-//   }
-//
-//   void _toggleFavorite(bool newValue) {
-//     setState(() {
-//       _isFavorite = newValue;
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final userDataProvider = Provider.of<UserDataProvider>(context);
-//     return StreamBuilder(
-//       stream: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('favorites').where('favoriteFoodName',isEqualTo: widget.data.foodName).snapshots(),
-//       builder: (context, snapshot) {
-//         if(snapshot.data==null){
-//           return Container();
-//         }
-//
-//         return IconButton(
-//           icon: snapshot.data!.docs.length!=0
-//               ? Icon(
-//             Icons.favorite,
-//             color: Colors.red,
-//             size: 30,
-//           )
-//               : Icon(
-//             Icons.favorite_border,
-//             size: 30,
-//           ),
-//           onPressed: () async {
-//             _toggleFavorite(!_isFavorite);
-//             if (!_isFavorite) {
-//               FirebaseFirestore.instance
-//                   .collection('users')
-//                   .doc(FirebaseAuth.instance.currentUser!.uid)
-//                   .collection('favorites')
-//                   .doc(widget.data.id)
-//                   .set({'favoriteFoodName': widget.data.foodName});
-//             } else {
-//               FirebaseFirestore.instance
-//                   .collection('users')
-//                   .doc(FirebaseAuth.instance.currentUser!.uid)
-//                   .collection('favorites')
-//                   .doc(widget.data.id)
-//                   .delete();
-//             }
-//           },
-//         );
-//       }
-//     );
-//   }
-// }
-
 class _FavoriteButtonState extends State<FavoriteButton> {
-  late Future<bool> _isFavorite;
+  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    _isFavorite = Provider.of<UserDataProvider>(context, listen: false)
-        .isFavorite(widget.data.id);
+    _getFavoriteState();
   }
 
-  void _toggleFavorite(bool newValue) {
+  Future<bool> _getFavoriteState() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return false;
+    }
+
+
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('favorites')
+        .doc(widget.foodId)
+        .get();
+
     setState(() {
-      _isFavorite = Future.value(newValue);
+      _isFavorite = doc.exists;
     });
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: _isFavorite,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          bool isFavorite = snapshot.data ?? false;
+      future: _getFavoriteState(),
+      initialData: false,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if(snapshot.hasData){
           return IconButton(
-            icon: isFavorite
-                ? Icon(
-              Icons.favorite,
-              color: Colors.red,
-              size: 30,
-            )
-                : Icon(
-              Icons.favorite_border,
-              size: 30,
-            ),
+            icon: _isFavorite
+                ? Icon(Icons.favorite, color: Colors.red)
+                : Icon(Icons.favorite_border),
             onPressed: () async {
-              _toggleFavorite(!isFavorite);
-              if (!isFavorite) {
-                FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection('favorites')
-                    .doc(widget.data.id)
-                    .set({'favoriteFoodName': widget.data.foodName});
-              } else {
-                FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection('favorites')
-                    .doc(widget.data.id)
-                    .delete();
+              final User? user = FirebaseAuth.instance.currentUser;
+              if (user == null) {
+                // Handle user not signed in
+                return;
               }
+
+              final favoritesRef = FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user.uid)
+                  .collection('favorites');
+
+              if (_isFavorite) {
+                // Remove from favorites
+                await favoritesRef.doc(widget.foodId).delete();
+                setState(() {
+                  _isFavorite = false;
+                });
+              } else {
+                // Add to favorites
+                await favoritesRef.doc(widget.foodId).set({});
+                setState(() {
+                  _isFavorite = true;
+                });
+              }
+
             },
           );
         }
+        return CircularProgressIndicator();
+
       },
     );
   }
 }
-
-
-

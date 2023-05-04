@@ -15,9 +15,13 @@ class CartData{
   int get qty => _qty;
 
   void increment(){
-    _qty++;
+    if(_foodData.stockLeft>=_qty) {
+      _qty++;
+    }
 
   }
+
+
 
   void decrement(){
     if(_qty!=0){
