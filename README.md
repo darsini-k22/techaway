@@ -7,7 +7,7 @@ Techaway is a canteen food ordering android application. It was mainly implement
 - LanguageL: Dart
 - SDK: Flutter
 - Backend: Firebase
-- Storage: Firebase Forestore
+- Storage: Firebase Firestore
 
 ## Download Application
 - To download the application go to build/app/outputs/flutter-apk/app-release.apk
